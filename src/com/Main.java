@@ -8,7 +8,7 @@ import java.awt.*;
 public class Main  {
 
     public static void main(String[] args) {
-        Kiosk kiosk = new Kiosk("test");
+        Kiosk kiosk = new Kiosk("Home");
 
     }
 }
