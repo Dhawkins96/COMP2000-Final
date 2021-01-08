@@ -1,9 +1,6 @@
 package com;
 
-import com.View.Kiosk;
-
-import javax.swing.*;
-import java.awt.*;
+import com.Model.Kiosk;
 
 public class Main  {
 

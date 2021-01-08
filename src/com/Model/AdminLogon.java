@@ -1,6 +1,5 @@
-package com.View;
+package com.Model;
 
-import javax.security.auth.login.LoginContext;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -51,22 +50,19 @@ public class AdminLogon extends Kiosk {
         try {
             Scanner inputBuffer = new Scanner(file);
 
-            while(inputBuffer.hasNext()){
+            while(inputBuffer.hasNext()) {
                 String line = inputBuffer.nextLine();
                 String[] values = line.split("\\|");
 
-                if (values[0].equals(Username) && values[1].equals(Password)){
-                        isAuth = true;
+                if (values[0].equals(Username) && values[1].equals(Password)) {
+                    isAuth = true;
                     AdminStock adminStock = new AdminStock("Stock");
                     AdminLogon.this.setVisible(false);
-
-                        break;
+                    break;
                 }
-
             }
-
             if (!isAuth){
-                JOptionPane.showMessageDialog(null,"Username and/or Password INCORRECT!", "ERROR",JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null,"Username and/or Password INCORRECT! \n Please try again", "ERROR",JOptionPane.WARNING_MESSAGE);
             }
 
         } catch (FileNotFoundException fe){
