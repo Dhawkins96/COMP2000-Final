@@ -1,9 +1,8 @@
 package com.Model;
 
 public class Stock {
-    public String itemName;
-
-    public int itemCode;
+    private int itemCode;
+    private String itemName;
 
     public float itemPrice;
 
