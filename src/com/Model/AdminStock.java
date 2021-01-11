@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Scanner;
 
 
-public class AdminStock extends Kiosk {
+public class AdminStock extends AbstractedView {
     private JLabel lblAdminName;
     private JList<String> lstStock;
     private JButton btnAdd;
@@ -32,22 +32,20 @@ public class AdminStock extends Kiosk {
     private static Scanner x;
     private String[] stockData = new String[0];
     private ArrayList<Stock> items = new ArrayList<>();
+
     DefaultListModel<String> model = new DefaultListModel<>();
 
-    public AdminStock(String title) {
-        super(title);
+    public AdminStock() {
+
         setContentPane(StockAdmin);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setPreferredSize(new Dimension(500, 500));
-        this.setVisible(true);
-        pack();
+        formDisplay();
 
         loadFile();
 
         btnBack.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Kiosk kiosk = new Kiosk("Home");
+                Kiosk kiosk = new Kiosk();
                 AdminStock.this.setVisible(false);
             }
         });
@@ -56,10 +54,10 @@ public class AdminStock extends Kiosk {
         btnRemove.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                deleteItem("Resources\\FileStock", lstStock.getSelectedValue(), 1);
+                String selected = lstStock.getSelectedValue();
+                deleteItem("Resources\\FileStock", selected, 1);
                 AdminStock.this.dispose();
-                AdminStock adminStock = new AdminStock("stock"); //reloads the form
+                AbstractedView adminStock = new AdminStock(); //reloads the form
 
             }
 
@@ -70,7 +68,7 @@ public class AdminStock extends Kiosk {
                 try {
                     addItem();
                     AdminStock.this.dispose();
-                    AdminStock adminStock = new AdminStock("stock"); //reloads the form
+                    AbstractedView adminStock = new AdminStock(); //reloads the form
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -85,10 +83,10 @@ public class AdminStock extends Kiosk {
                 Float price = Float.parseFloat(String.valueOf(txtPrice.getText()));
                 int qual = Integer.parseInt(String.valueOf(txtQuan.getText()));
 
-                editItem("Resources\\FileStock",selected, name, barcode, price, qual);
+                editItem("Resources\\FileStock",selected, 1, name, barcode, price, qual);
 
                 AdminStock.this.dispose();
-                AdminStock adminStock = new AdminStock("stock"); //reloads the form
+                AbstractedView adminStock = new AdminStock(); //reloads the form
             }
         });
     }
@@ -154,36 +152,40 @@ public class AdminStock extends Kiosk {
         }
     }
 
-    public void editItem(String filePath, String editTerm, String newName, int newCode, Float newPrice, int newQual) {
-
+    public void editItem(String filePath, String editTerm, int positionOfTerm, String newName, int newCode, Float newPrice, int newQual) {
+            int position = positionOfTerm - 1;
             String tempFile = "Resources\\TempStock";
             File oldFile = new File(filePath);
             File newFile = new File(tempFile);
-            String name = "";
-            String code = "";
-            String price = "";
-            String qual = "";
+
+            String currentLine;
 
             try{
                     FileWriter fw = new FileWriter(tempFile, true);
                     BufferedWriter bw = new BufferedWriter(fw);
                     PrintWriter pw = new PrintWriter(bw);
-                    x = new Scanner(new File(filePath));
-                    x.useDelimiter("\\|");
-                    while(x.hasNext()) {
-                        name = x.next();
-                        code = x.next();
-                        price = x.next();
-                        qual = x.next();
-                        if(name.equals(editTerm)){
-                            pw.println(newName + "\\|" + newCode + "\\|" + newPrice + "\\|" + newQual);
+                    FileReader fr = new FileReader(filePath);
+                    BufferedReader br = new BufferedReader(fr);
+
+
+                    while((currentLine = br.readLine()) != null) {
+
+
+                        String[] data = currentLine.split("\\|");
+
+                        if(!(data[position].equals(editTerm))){
+                             pw.println(currentLine);
                         } else {
-                            pw.println(name + "\\|" + code + "\\|" +  price + "\\|" +  qual);
+                            pw.println(newName + "|" + newCode + "|" + newPrice + "|" + newQual);
                         }
                     }
-                    x.close();
+
                     pw.flush();
                     pw.close();
+                    fr.close();
+                    br.close();
+                    bw.close();
+                    fw.close();
                     oldFile.delete();
                     File dump = new File(filePath);
                     newFile.renameTo(dump);

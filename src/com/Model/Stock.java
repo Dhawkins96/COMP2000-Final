@@ -1,12 +1,16 @@
 package com.Model;
 
 public class Stock {
+
+    public String itemName;
     private int itemCode;
-    private String itemName;
+
 
     public float itemPrice;
 
     public int itemQuantity;
+
+
 
     public void setItemName(String itemName){
         this.itemName = itemName;
