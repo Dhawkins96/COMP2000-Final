@@ -1,17 +1,24 @@
 package com.Model;
 
+import com.Controller.CardPayment;
+import com.Controller.CashPayment;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class Kiosk extends AbstractedView {
+public class Kiosk extends AbstractedView{
     private JPanel KioskMain;
     private JButton btnLogin;
     private JButton btnAdd;
@@ -20,6 +27,8 @@ public class Kiosk extends AbstractedView {
     private JButton btnCash;
     private JList<String> lstItems;
     private JTextField txtTotal;
+
+    public static float total = 0;
 
 
     public File file = new File("Resources\\FileStock");
@@ -51,21 +60,39 @@ public class Kiosk extends AbstractedView {
             public void actionPerformed(ActionEvent e) {
 
                 int index = lstItems.getSelectedIndex();
-                String selected = lstItems.getSelectedValue();
+
                 if(index != -1){
                     itemModel.get(index);
-                    basketModel.addElement(selected);
-                    lstBasket.setModel(basketModel);
-                    try {
-                        TransTotal();
 
-                    } catch (IOException ioException)
-                    {
-                        ioException.printStackTrace();
-                    }
+                    lstBasket.setModel(basketModel);
+                    TransTotal();
+
+
 
                 }
 
+            }
+        });
+        btnCash.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnTxtBasket();
+                AbstractedView CashPayment = new CashPayment();
+
+                Kiosk.this.setVisible(false);
+                Kiosk.this.dispose();
+            }
+        });
+
+
+        btnCard.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnTxtBasket();
+                AbstractedView CardPayment = new CardPayment();
+
+                Kiosk.this.setVisible(false);
+                Kiosk.this.dispose();
             }
         });
     }
@@ -85,7 +112,7 @@ public class Kiosk extends AbstractedView {
                 int qualInt = Integer.parseInt(loadFile[3]);
                 stocks.add(new Stock(itemName, codeInt, priceFloat, qualInt));
 
-                itemModel.addElement(loadFile[0]);
+                itemModel.addElement(itemName);
                 lstItems.setModel(itemModel);
 
             }
@@ -96,19 +123,16 @@ public class Kiosk extends AbstractedView {
 
     }
 
-    public void TransTotal() throws IOException {
+    public void TransTotal() {
         String getItem = lstItems.getSelectedValue();
-
         Stock item = new Stock();
-
         Iterator<Stock> iterator = stocks.iterator();
-        float itemPrice;
-        float total = 0;
 
+        float itemPrice;
 
         for(basketModel.elements().asIterator(); iterator.hasNext();){
             item =  iterator.next();
-            if(getItem == item.itemName){
+            if(getItem.equals(item.itemName)){
                 itemPrice = item.getItemPrice();
                 total = itemPrice;
                 if(!txtTotal.getText().isEmpty()){
@@ -116,17 +140,27 @@ public class Kiosk extends AbstractedView {
                     txtTotal.setText(String.valueOf(total));
                 } else {
                     txtTotal.setText(String.valueOf(total));
-                }
 
-            } else {
+                }
+                basketModel.addElement(item.itemName + "|" + itemPrice);
 
             }
         }
 
-    }
-    public void cash(){
-
 
     }
+    public void btnTxtBasket() {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("Resources\\Pay"));
+            for (int i=0; i<lstBasket.getModel().getSize(); i++){
+                bw.write(lstBasket.getModel().getElementAt(i));
+                bw.newLine();
+            }
+            bw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
 
 }

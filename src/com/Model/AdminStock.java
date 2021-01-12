@@ -27,6 +27,7 @@ public class AdminStock extends AbstractedView {
     private JTextField txtCode;
     private JTextField txtPrice;
     private JTextField txtQuan;
+    private JList lstReorder;
 
     public File file = new File("Resources\\FileStock");
     private static Scanner x;
@@ -34,6 +35,7 @@ public class AdminStock extends AbstractedView {
     private ArrayList<Stock> items = new ArrayList<>();
 
     DefaultListModel<String> model = new DefaultListModel<>();
+    DefaultListModel<String> Reorder = new DefaultListModel<>();
 
     public AdminStock() {
 
@@ -98,10 +100,8 @@ public class AdminStock extends AbstractedView {
             List<String> lines = Files.readAllLines(Path.of(String.valueOf(file)));
 
             for (String line : lines) {
-                Stock stock = new Stock();
                 stockData = line.split("\\|");
                 String itemName = String.valueOf(stockData[0]);
-                stock.setItemName(itemName);
                 int codeInt = Integer.parseInt(stockData[1]);
                 float priceFloat = Float.parseFloat(stockData[2]);
                 int qualInt = Integer.parseInt(stockData[3]);
@@ -109,6 +109,11 @@ public class AdminStock extends AbstractedView {
 
                 model.addElement(stockData[0]);
                 lstStock.setModel(model);
+
+                if (qualInt < 5){
+                    Reorder.addElement(itemName);
+                    lstReorder.setModel(Reorder);
+                }
 
                 lstStock.addListSelectionListener(e -> {
                     String selected = lstStock.getSelectedValue();
@@ -167,9 +172,7 @@ public class AdminStock extends AbstractedView {
                     FileReader fr = new FileReader(filePath);
                     BufferedReader br = new BufferedReader(fr);
 
-
                     while((currentLine = br.readLine()) != null) {
-
 
                         String[] data = currentLine.split("\\|");
 
@@ -192,7 +195,6 @@ public class AdminStock extends AbstractedView {
 
             }
             catch (Exception ignored){ }
-
     }
 
     public void deleteItem(String filePath, String removeTerm, int positionOfTerm) {
