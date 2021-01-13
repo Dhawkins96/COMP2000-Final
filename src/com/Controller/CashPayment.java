@@ -129,8 +129,8 @@ public class CashPayment extends AbstractedView {
                     stockData = line.split("\\|");
                     editCashStock("Resources\\FileStock");
                 }
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
+            } catch (IOException ex) {
+                Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
             }
             deleteCashFile();
 

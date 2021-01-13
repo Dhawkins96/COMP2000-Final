@@ -94,7 +94,6 @@ public class Kiosk extends AbstractedView {
 
                 String[] loadFile = line.split("\\|");
                 String itemName = String.valueOf(loadFile[0]);
-
                 int codeInt = Integer.parseInt(loadFile[1]);
                 float priceFloat = Float.parseFloat(loadFile[2]);
                 int qualInt = Integer.parseInt(loadFile[3]);
@@ -139,7 +138,7 @@ public class Kiosk extends AbstractedView {
         //saves the lstBasket to a file for printing in the payment classes
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("Resources\\Pay"));
-            for (int i=0; i<lstBasket.getModel().getSize(); i++){
+            for (int i = 0; i < lstBasket.getModel().getSize(); i++){
                 bw.write(lstBasket.getModel().getElementAt(i));
                 bw.newLine();
             }

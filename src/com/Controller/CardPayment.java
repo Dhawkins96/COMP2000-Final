@@ -84,21 +84,15 @@ public class CardPayment extends AbstractedView {
                 int codeInt = Integer.parseInt(stockData[1]);
                 float priceFloat = Float.parseFloat(stockData[2]);
                 int qualInt = Integer.parseInt(stockData[3]);
-                basketModel.addElement( stockData[0] + " £" + stockData[2]);
+                basketModel.addElement( stockData[0] + " £ " + stockData[2]);
                 lstBasket.setModel(basketModel);
 
             }
             txtTotal.setText(String.valueOf(total));
 
-
         } catch (IOException ex) {
             Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    public void deleteCardFile() {
-        File pay = new File("Resources\\Pay");
-        pay.delete();
     }
 
     public void CardPay(){
@@ -162,5 +156,9 @@ public class CardPayment extends AbstractedView {
             Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+    public void deleteCardFile() {
+        File pay = new File("Resources\\Pay");
+        pay.delete();
     }
 }
