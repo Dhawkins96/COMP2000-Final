@@ -1,8 +1,7 @@
-package com.Model;
+package com.Controller;
 
-import com.Controller.CardPayment;
-import com.Controller.CashPayment;
-
+import com.Model.AbstractedView;
+import com.Model.Stock;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,7 +17,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Kiosk extends AbstractedView{
+public class Kiosk extends AbstractedView {
     private JPanel KioskMain;
     private JButton btnLogin;
     private JButton btnAdd;
@@ -27,12 +26,10 @@ public class Kiosk extends AbstractedView{
     private JButton btnCash;
     private JList<String> lstItems;
     private JTextField txtTotal;
-
+    //Total has been made static so it can be read from other classes
     public static float total = 0;
 
-
     public File file = new File("Resources\\FileStock");
-    private String[] loadFile = new String[0];
 
     private ArrayList<Stock> stocks = new ArrayList<Stock>();
 
@@ -40,12 +37,9 @@ public class Kiosk extends AbstractedView{
     DefaultListModel<String> basketModel = new DefaultListModel<>();
 
     public Kiosk()  {
-
         setContentPane(KioskMain);
         formDisplay();
-
         LoadStock();
-
 
         btnLogin.addActionListener(new ActionListener() {
             @Override
@@ -55,28 +49,23 @@ public class Kiosk extends AbstractedView{
                 Kiosk.this.dispose();
             }
         });
+
         btnAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 int index = lstItems.getSelectedIndex();
-
                 if(index != -1){
                     itemModel.get(index);
-
                     lstBasket.setModel(basketModel);
-                    TransTotal();
-
-
-
+                    Total();
                 }
-
             }
         });
+
         btnCash.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                btnTxtBasket();
+                CheckoutBasket();
                 AbstractedView CashPayment = new CashPayment();
 
                 Kiosk.this.setVisible(false);
@@ -84,11 +73,10 @@ public class Kiosk extends AbstractedView{
             }
         });
 
-
         btnCard.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                btnTxtBasket();
+                CheckoutBasket();
                 AbstractedView CardPayment = new CardPayment();
 
                 Kiosk.this.setVisible(false);
@@ -104,32 +92,30 @@ public class Kiosk extends AbstractedView{
 
             for (String line: lines){
 
-                loadFile = line.split("\\|");
+                String[] loadFile = line.split("\\|");
                 String itemName = String.valueOf(loadFile[0]);
 
                 int codeInt = Integer.parseInt(loadFile[1]);
                 float priceFloat = Float.parseFloat(loadFile[2]);
                 int qualInt = Integer.parseInt(loadFile[3]);
                 stocks.add(new Stock(itemName, codeInt, priceFloat, qualInt));
-
+                //adds the file to the lst box
                 itemModel.addElement(itemName);
                 lstItems.setModel(itemModel);
-
             }
 
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
-    public void TransTotal() {
+    public void Total() {
         String getItem = lstItems.getSelectedValue();
         Stock item = new Stock();
         Iterator<Stock> iterator = stocks.iterator();
 
         float itemPrice;
-
+        //adds up the total of the selected items and uses the get price from Stock class
         for(basketModel.elements().asIterator(); iterator.hasNext();){
             item =  iterator.next();
             if(getItem.equals(item.itemName)){
@@ -142,14 +128,15 @@ public class Kiosk extends AbstractedView{
                     txtTotal.setText(String.valueOf(total));
 
                 }
-                basketModel.addElement(item.itemName + "|" + itemPrice);
-
+                //includes all the elements to the line in the basket
+                basketModel.addElement(item.itemName + "|" + item.itemCode + "|" + itemPrice + "|" + item.itemQuantity);
             }
         }
 
 
     }
-    public void btnTxtBasket() {
+    public void CheckoutBasket() {
+        //saves the lstBasket to a file for printing in the payment classes
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("Resources\\Pay"));
             for (int i=0; i<lstBasket.getModel().getSize(); i++){
@@ -161,6 +148,4 @@ public class Kiosk extends AbstractedView{
             Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-
 }

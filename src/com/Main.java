@@ -1,7 +1,7 @@
 package com;
 
 import com.Model.AbstractedView;
-import com.Model.Kiosk;
+import com.Controller.Kiosk;
 
 public class Main  {
 

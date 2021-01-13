@@ -3,13 +3,9 @@ package com.Model;
 public class Stock {
 
     public String itemName;
-    private int itemCode;
-
-
+    public int itemCode;
     public float itemPrice;
-
     public int itemQuantity;
-
 
 
     public void setItemName(String itemName){
@@ -28,6 +24,7 @@ public class Stock {
         this.itemQuantity = itemQuantity;
     }
 
+
     public String getItemName(){
        return itemName;
     }
@@ -43,6 +40,7 @@ public class Stock {
     public int getItemQuantity() {
         return itemQuantity;
     }
+
 
     public Stock(String stockName, int stockCode, float stockPrice, int stockQuantity){
         itemName = stockName;

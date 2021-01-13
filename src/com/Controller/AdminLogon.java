@@ -1,12 +1,13 @@
-package com.Model;
+package com.Controller;
+
+import com.Model.AbstractedView;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AdminLogon extends AbstractedView {
     private JPanel AdminMain;
@@ -16,24 +17,15 @@ public class AdminLogon extends AbstractedView {
     private JTextField txtPass;
 
     public AdminLogon() {
-
         setContentPane(AdminMain);
         formDisplay();
 
-        btnBack.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AbstractedView kiosk = new Kiosk();
-                AdminLogon.this.setVisible(false);
-            }
+        btnBack.addActionListener(e -> {
+            AbstractedView kiosk = new Kiosk();
+            AdminLogon.this.setVisible(false);
         });
 
-        btnLogin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                login();
-            }
-        });
+        btnLogin.addActionListener(e -> login());
     }
 
     public void login(){
@@ -49,9 +41,9 @@ public class AdminLogon extends AbstractedView {
 
             while(inputBuffer.hasNext()) {
                 String line = inputBuffer.nextLine();
-                String[] values = line.split("\\|");
-
-                if (values[0].equals(Username) && values[1].equals(Password)) {
+                String[] data = line.split("\\|");
+                //checks the username and password is valid
+                if (data[0].equals(Username) && data[1].equals(Password)) {
                     isAuth = true;
                     AbstractedView adminStock = new AdminStock();
                     AdminLogon.this.setVisible(false);
@@ -59,11 +51,10 @@ public class AdminLogon extends AbstractedView {
                 }
             }
             if (!isAuth){
-                JOptionPane.showMessageDialog(null,"Username and/or Password INCORRECT! \n Please try again", "ERROR",JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null,"Username and/or Password INCORRECT! \n Please try again!", "ERROR",JOptionPane.WARNING_MESSAGE);
             }
-
-        } catch (FileNotFoundException fe){
-            fe.getMessage();
+        } catch (IOException ex) {
+            Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
 
         }
     }

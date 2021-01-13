@@ -1,19 +1,18 @@
-package com.Model;
+package com.Controller;
 
+import com.Model.AbstractedView;
+import com.Model.Stock;
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AdminStock extends AbstractedView {
     private JLabel lblAdminName;
@@ -30,18 +29,14 @@ public class AdminStock extends AbstractedView {
     private JList lstReorder;
 
     public File file = new File("Resources\\FileStock");
-    private static Scanner x;
-    private String[] stockData = new String[0];
     private ArrayList<Stock> items = new ArrayList<>();
 
     DefaultListModel<String> model = new DefaultListModel<>();
     DefaultListModel<String> Reorder = new DefaultListModel<>();
 
     public AdminStock() {
-
         setContentPane(StockAdmin);
         formDisplay();
-
         loadFile();
 
         btnBack.addActionListener(new ActionListener() {
@@ -51,7 +46,6 @@ public class AdminStock extends AbstractedView {
                 AdminStock.this.setVisible(false);
             }
         });
-
 
         btnRemove.addActionListener(new ActionListener() {
             @Override
@@ -64,6 +58,7 @@ public class AdminStock extends AbstractedView {
             }
 
         });
+
         btnAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -71,11 +66,12 @@ public class AdminStock extends AbstractedView {
                     addItem();
                     AdminStock.this.dispose();
                     AbstractedView adminStock = new AdminStock(); //reloads the form
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
+                } catch (IOException ex) {
+                    Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
+
         btnEdit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -85,22 +81,20 @@ public class AdminStock extends AbstractedView {
                 Float price = Float.parseFloat(String.valueOf(txtPrice.getText()));
                 int qual = Integer.parseInt(String.valueOf(txtQuan.getText()));
 
-                editItem("Resources\\FileStock",selected, 1, name, barcode, price, qual);
+                editItem("Resources\\FileStock",selected, name, barcode, price, qual);
 
                 AdminStock.this.dispose();
-                AbstractedView adminStock = new AdminStock(); //reloads the form
+                AbstractedView adminStock = new AdminStock();
             }
         });
     }
 
     public void loadFile() {
-
         try {
-
             List<String> lines = Files.readAllLines(Path.of(String.valueOf(file)));
-
+            //uses a List to save the file then the foreach to split the data into the relevant things
             for (String line : lines) {
-                stockData = line.split("\\|");
+                String[] stockData = line.split("\\|");
                 String itemName = String.valueOf(stockData[0]);
                 int codeInt = Integer.parseInt(stockData[1]);
                 float priceFloat = Float.parseFloat(stockData[2]);
@@ -109,12 +103,12 @@ public class AdminStock extends AbstractedView {
 
                 model.addElement(stockData[0]);
                 lstStock.setModel(model);
-
+                //checks if stock is less than 5 so the admin user can reorder that item
                 if (qualInt < 5){
                     Reorder.addElement(itemName);
                     lstReorder.setModel(Reorder);
                 }
-
+                //inputs the users selected into the txt boxes
                 lstStock.addListSelectionListener(e -> {
                     String selected = lstStock.getSelectedValue();
                     txtName.setText(selected);
@@ -127,11 +121,9 @@ public class AdminStock extends AbstractedView {
                     }
                 });
             }
-
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     public void addItem() throws IOException {
@@ -142,7 +134,7 @@ public class AdminStock extends AbstractedView {
             if (i < 0) {
                 data += "\n";
             }
-
+            //adds item to file
             data += txtName.getText();
             String itemCode = txtCode.getText();
             data += "|" + itemCode;
@@ -150,15 +142,14 @@ public class AdminStock extends AbstractedView {
             data += "|" + itemPrice;
             String itemQual = txtQuan.getText();
             data += "|" + itemQual;
-
             sw.append(data);
 
             sw.close();
         }
     }
 
-    public void editItem(String filePath, String editTerm, int positionOfTerm, String newName, int newCode, Float newPrice, int newQual) {
-            int position = positionOfTerm - 1;
+    public void editItem(String filePath, String editTerm, String newName, int newCode, Float newPrice, int newQual) {
+            int position = 0;
             String tempFile = "Resources\\TempStock";
             File oldFile = new File(filePath);
             File newFile = new File(tempFile);
@@ -171,7 +162,7 @@ public class AdminStock extends AbstractedView {
                     PrintWriter pw = new PrintWriter(bw);
                     FileReader fr = new FileReader(filePath);
                     BufferedReader br = new BufferedReader(fr);
-
+                    //edits item by looking for the name in the Stock file and deletes the line
                     while((currentLine = br.readLine()) != null) {
 
                         String[] data = currentLine.split("\\|");
@@ -179,6 +170,7 @@ public class AdminStock extends AbstractedView {
                         if(!(data[position].equals(editTerm))){
                              pw.println(currentLine);
                         } else {
+                            //inputs the new line
                             pw.println(newName + "|" + newCode + "|" + newPrice + "|" + newQual);
                         }
                     }
@@ -193,8 +185,9 @@ public class AdminStock extends AbstractedView {
                     File dump = new File(filePath);
                     newFile.renameTo(dump);
 
+            } catch (IOException ex) {
+                Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
             }
-            catch (Exception ignored){ }
     }
 
     public void deleteItem(String filePath, String removeTerm, int positionOfTerm) {
@@ -214,6 +207,7 @@ public class AdminStock extends AbstractedView {
 
             while ((currentLine = br.readLine()) != null) {
                 String[] data = currentLine.split("\\|");
+                //deletes full line
                 if (!(data[position].equalsIgnoreCase(removeTerm))) {
                     pw.println(currentLine);
                 }
@@ -227,6 +221,8 @@ public class AdminStock extends AbstractedView {
             oldFile.delete();
             File dump = new File(filePath);
             newFile.renameTo(dump);
-        } catch (Exception e) { }
+        } catch (IOException ex) {
+            Logger.getLogger(Kiosk.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
